@@ -2,7 +2,7 @@ import streamlit as st
 import pickle
 import numpy as np
 from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing.sequence import pad_sequence
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 import gdown
 import pickle
 
@@ -115,4 +115,5 @@ if st.button("Translate"):
 
         st.success("✅ Translations")
         st.markdown(f"**🇫🇷 French:** {fr_translation}")
+
         st.markdown(f"**🇮🇳 Hindi:** {hi_translation}")

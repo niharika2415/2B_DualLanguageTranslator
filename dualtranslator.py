@@ -25,7 +25,7 @@ if user_input:
 fr_model_id = "1xdvwtu6Js8Vt8wSlU4l0bmbcehpSowD4"  # Drive ID
 fr_model_path = "english_to_french_model.h5"
 if not os.path.exists(fr_model_path):
-    gdown.download(f"https://drive.google.com/uc?id={fr_model_id}", fr_model_path, quiet=False)
+    gdown.download(f"https://drive.google.com/uc?id={fr_model_id}", fr_model_path, quiet=False, fuzzy=True)
 model_fr = tf.keras.models.load_model(fr_model_path)
 
 # Hindi model
@@ -119,5 +119,6 @@ if st.button("Translate"):
         st.markdown(f"**🇫🇷 French:** {fr_translation}")
 
         st.markdown(f"**🇮🇳 Hindi:** {hi_translation}")
+
 
 

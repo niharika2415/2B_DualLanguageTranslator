@@ -44,10 +44,12 @@ with open(eng_tokenizer_fr_path, "rb") as f:
     eng_tokenizer_fr = pickle.load(f)
 
 # 2. French tokenizer
+fr_tokenizer_id = "1t2SERaR-ugYvf49eGbQKwdW0qDKRR7aF"
 fr_tokenizer_path = "fr_tokenizer.pkl"
-fr_tokenizer_url = "https://drive.google.com/file/d/1t2SERaR-ugYvf49eGbQKwdW0qDKRR7aF/view?usp=sharing"
+
 if not os.path.exists(fr_tokenizer_path):
-    gdown.download(fr_tokenizer_url, fr_tokenizer_path, quiet=False, fuzzy=True)
+    gdown.download(id=fr_tokenizer_id, output=fr_tokenizer_path, quiet=False)
+
 with open(fr_tokenizer_path, "rb") as f:
     fr_tokenizer = pickle.load(f)
 
@@ -119,6 +121,7 @@ if st.button("Translate"):
         st.markdown(f"**🇫🇷 French:** {fr_translation}")
 
         st.markdown(f"**🇮🇳 Hindi:** {hi_translation}")
+
 
 
 

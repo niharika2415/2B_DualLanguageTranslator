@@ -25,7 +25,7 @@ if user_input:
 fr_model_id = "1xdvwtu6Js8Vt8wSlU4l0bmbcehpSowD4"  # Drive ID
 fr_model_path = "english_to_french_model.h5"
 if not os.path.exists(fr_model_path):
-    gdown.download(f"https://drive.google.com/uc?id={fr_model_id}", fr_model_path, quiet=False, fuzzy=True)
+    gdown.download(f"https://drive.google.com/uc?id={fr_model_id}", fr_model_path, quiet=False)
 model_fr = tf.keras.models.load_model(fr_model_path)
 
 # Hindi model
@@ -39,7 +39,7 @@ model_hi = tf.keras.models.load_model(hi_model_path)
 eng_tokenizer_fr_path = "eng_tokenizer_fr.pkl"
 eng_tokenizer_fr_url = "https://drive.google.com/file/d/1mEzR2ePmY0zbzHHPlMwNe9WofMK-vKUY/view?usp=sharing"
 if not os.path.exists(eng_tokenizer_fr_path):
-    gdown.download(eng_tokenizer_fr_url, eng_tokenizer_fr_path, quiet=False)
+    gdown.download(eng_tokenizer_fr_url, eng_tokenizer_fr_path, quiet=False, fuzzy=True)
 with open(eng_tokenizer_fr_path, "rb") as f:
     eng_tokenizer_fr = pickle.load(f)
 
@@ -119,6 +119,7 @@ if st.button("Translate"):
         st.markdown(f"**🇫🇷 French:** {fr_translation}")
 
         st.markdown(f"**🇮🇳 Hindi:** {hi_translation}")
+
 
 
 

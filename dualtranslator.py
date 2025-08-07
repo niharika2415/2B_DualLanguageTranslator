@@ -47,7 +47,7 @@ with open(eng_tokenizer_fr_path, "rb") as f:
 fr_tokenizer_path = "fr_tokenizer.pkl"
 fr_tokenizer_url = "https://drive.google.com/file/d/1t2SERaR-ugYvf49eGbQKwdW0qDKRR7aF/view?usp=sharing"
 if not os.path.exists(fr_tokenizer_path):
-    gdown.download(fr_tokenizer_url, fr_tokenizer_path, quiet=False)
+    gdown.download(fr_tokenizer_url, fr_tokenizer_path, quiet=False, fuzzy=True)
 with open(fr_tokenizer_path, "rb") as f:
     fr_tokenizer = pickle.load(f)
 
@@ -55,7 +55,7 @@ with open(fr_tokenizer_path, "rb") as f:
 eng_tokenizer_hi_path = "eng_tokenizer_hi.pkl"
 eng_tokenizer_hi_url = "https://drive.google.com/file/d/1WxdefG3TY9uJkpt5yfqxwqQ-U9czudlr/view?usp=sharing"
 if not os.path.exists(eng_tokenizer_hi_path):
-    gdown.download(eng_tokenizer_hi_url, eng_tokenizer_hi_path, quiet=False)
+    gdown.download(eng_tokenizer_hi_url, eng_tokenizer_hi_path, quiet=False, fuzzy=True)
 with open(eng_tokenizer_hi_path, "rb") as f:
     eng_tokenizer_hi = pickle.load(f)
 
@@ -63,7 +63,7 @@ with open(eng_tokenizer_hi_path, "rb") as f:
 hi_tokenizer_path = "hi_tokenizer.pkl"
 hi_tokenizer_url = "https://drive.google.com/file/d/1vAbYqb1X2PxXHZwCT2d_8PKG-P8TDONm/view?usp=sharing"
 if not os.path.exists(hi_tokenizer_path):
-    gdown.download(hi_tokenizer_url, hi_tokenizer_path, quiet=False)
+    gdown.download(hi_tokenizer_url, hi_tokenizer_path, quiet=False, fuzzy=True)
 with open(hi_tokenizer_path, "rb") as f:
     hi_tokenizer = pickle.load(f)
 
@@ -119,6 +119,7 @@ if st.button("Translate"):
         st.markdown(f"**🇫🇷 French:** {fr_translation}")
 
         st.markdown(f"**🇮🇳 Hindi:** {hi_translation}")
+
 
 
 

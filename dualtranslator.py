@@ -8,10 +8,6 @@ import gdown
 import pickle
 import os
 
-#Title
-st.title("Dual Language Translator")
-st.write("Enter an English sentence (10K+ letters) to get translations in French and Hindi.")
-
 #Input
 user_input= st.text_input("Enter An English Sentence:")
 
@@ -119,8 +115,8 @@ if st.button("Translate"):
 
         st.success("✅ Translations")
         st.markdown(f"**🇫🇷 French:** {fr_translation}")
-
         st.markdown(f"**🇮🇳 Hindi:** {hi_translation}")
+
 
 
 

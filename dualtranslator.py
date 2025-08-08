@@ -8,20 +8,26 @@ import gdown
 import os
 
 # --- Streamlit Page Configuration ---
+# It's best practice to set page config at the very top.
 st.set_page_config(page_title="Dual Translator", layout="centered")
 
 # --- UI Elements for User Input ---
+# All UI elements are now in a single, clean block to avoid duplication.
 st.title("🔁 English ➡️ French & Hindi Translator")
 st.markdown("Enter an English sentence (10+ letters). You'll get translations in both languages.")
 user_input = st.text_input("📥 Your English sentence:")
 
+# --- Define Max Sequence Lengths (IMPORTANT: YOU MUST REPLACE THESE VALUES!) ---
+# These are the placeholder values from your notebook. You need to replace them
+# with the exact numbers you get from your notebook's output.
 max_len_eng_fr = 4
 max_len_fr = 10
 max_len_eng_hi = 22
 max_len_hi = 25
 
 # --- Model and Tokenizer Loading (cached for efficiency) ---
-@st.cache_resource # Cache resource to prevent reloading on every rerun
+# Using st.cache_resource ensures that these heavy files are only loaded once.
+@st.cache_resource
 def load_translation_resources():
     # French model
     fr_model_id = "1xdvwtu6Js8Vt8wSlU4l0bmbcehpSowD4"
@@ -90,7 +96,8 @@ def load_translation_resources():
 # Load all resources
 model_fr, model_hi, eng_tokenizer_fr, fr_tokenizer, eng_tokenizer_hi, hi_tokenizer = load_translation_resources()
 
-# --- Translation function ---
+# --- Translation function (corrected) ---
+# max_output_len parameter removed as it's not used in the function logic
 def translate_sentence(model, input_text, tokenizer_in, tokenizer_out, max_input_len):
     seq = tokenizer_in.texts_to_sequences([input_text])
     padded = pad_sequences(seq, maxlen=max_input_len, padding='post')
@@ -133,4 +140,5 @@ if st.button("Translate"):
             max_input_len=max_len_eng_hi,
         )
         st.markdown(f"**🇮🇳 Hindi:** {hi_translation}")
+
         st.success("✅ Translations Complete!")

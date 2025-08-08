@@ -8,25 +8,20 @@ import gdown
 import os
 
 # --- Streamlit Page Configuration ---
-# It's best practice to set page config at the very top.
 st.set_page_config(page_title="Dual Translator", layout="centered")
 
 # --- UI Elements for User Input ---
-# All UI elements are now in a single, clean block to avoid duplication.
 st.title("🔁 English ➡️ French & Hindi Translator")
 st.markdown("Enter an English sentence (10+ letters). You'll get translations in both languages.")
 user_input = st.text_input("📥 Your English sentence:")
 
 # --- Define Max Sequence Lengths (IMPORTANT: YOU MUST REPLACE THESE VALUES!) ---
-# These are the placeholder values from your notebook. You need to replace them
-# with the exact numbers you get from your notebook's output.
 max_len_eng_fr = 4
 max_len_fr = 10
 max_len_eng_hi = 22
 max_len_hi = 25
 
 # --- Model and Tokenizer Loading (cached for efficiency) ---
-# Using st.cache_resource ensures that these heavy files are only loaded once.
 @st.cache_resource
 def load_translation_resources():
     # French model
@@ -92,58 +87,11 @@ def load_translation_resources():
         st.stop()
 
     return model_fr, model_hi, eng_tokenizer_fr, fr_tokenizer, eng_tokenizer_hi, hi_tokenizer
-    
-# Load all resources
+
+# Load all resources (this is where the tokenizers and models are defined)
 model_fr, model_hi, eng_tokenizer_fr, fr_tokenizer, eng_tokenizer_hi, hi_tokenizer = load_translation_resources()
 
-# --- DEBUGGING TOOL (OPTIONAL) ---
-# Paste this code block anywhere in your app.py, outside of any functions.
-# This will help you inspect your tokenizers and max lengths.
-
-st.header("🔍 Debugging Information")
-
-st.markdown(
-    """
-    **If your translations are wrong, this is the most likely cause.
-    Verify that your Max Lengths are correct and that your tokenizers have
-    the words in their vocabulary.
-    """
-)
-
-# Display Max Lengths
-st.subheader("Max Lengths Used")
-st.text(f"max_len_eng_fr: {max_len_eng_fr}")
-st.text(f"max_len_fr: {max_len_fr}")
-st.text(f"max_len_eng_hi: {max_len_eng_hi}")
-st.text(f"max_len_hi: {max_len_hi}")
-
-# Display Vocabulary Sizes
-st.subheader("Tokenizer Vocabulary Sizes")
-st.text(f"English (for French) vocab size: {eng_tokenizer_fr.word_index['the']}")
-st.text(f"French vocab size: {len(fr_tokenizer.word_index)}")
-st.text(f"English (for Hindi) vocab size: {len(eng_tokenizer_hi.word_index)}")
-st.text(f"Hindi vocab size: {len(hi_tokenizer.word_index)}")
-
-# Process a Test Sentence
-test_sentence = "Hello, how are you?"
-st.subheader(f"Test Sentence: '{test_sentence}'")
-
-# Test French Model Tokenizer
-st.markdown("##### English (for French) Tokenizer Test")
-eng_seq_fr_test = eng_tokenizer_fr.texts_to_sequences([test_sentence.lower()])
-st.text(f"Original sequence: {eng_seq_fr_test}")
-padded_seq = pad_sequences(eng_seq_fr_test, maxlen=max_len_eng_fr, padding='post')
-st.text(f"Padded/Truncated sequence: {padded_seq}")
-
-# Test Hindi Model Tokenizer
-st.markdown("##### English (for Hindi) Tokenizer Test")
-eng_seq_hi_test = eng_tokenizer_hi.texts_to_sequences([test_sentence.lower()])
-st.text(f"Original sequence: {eng_seq_hi_test}")
-padded_seq_hi = pad_sequences(eng_seq_hi_test, maxlen=max_len_eng_hi, padding='post')
-st.text(f"Padded/Truncated sequence: {padded_seq_hi}")
-
 # --- Translation function (corrected) ---
-# max_output_len parameter removed as it's not used in the function logic
 def translate_sentence(model, input_text, tokenizer_in, tokenizer_out, max_input_len):
     seq = tokenizer_in.texts_to_sequences([input_text])
     padded = pad_sequences(seq, maxlen=max_input_len, padding='post')
@@ -151,7 +99,6 @@ def translate_sentence(model, input_text, tokenizer_in, tokenizer_out, max_input
     pred_seq = np.argmax(pred, axis=-1)
 
     result = []
-    # Create a reverse word index for faster lookup
     reverse_word_index = {index: word for word, index in tokenizer_out.word_index.items()}
 
     for idx in pred_seq[0]:
@@ -167,7 +114,7 @@ if st.button("Translate"):
     if len(user_input.strip()) < 10:
         st.warning("⚠️ Enter at least 10 letters.")
     else:
-        # French Translation (using the correct max length for this model)
+        # French Translation
         fr_translation = translate_sentence(
             model_fr,
             user_input.lower(),
@@ -177,7 +124,7 @@ if st.button("Translate"):
         )
         st.markdown(f"**🇫🇷 French:** {fr_translation}")
 
-        # Hindi Translation (using the correct max length for this model)
+        # Hindi Translation
         hi_translation = translate_sentence(
             model_hi,
             user_input.lower(),
@@ -189,3 +136,43 @@ if st.button("Translate"):
 
         st.success("✅ Translations Complete!")
 
+# --- DEBUGGING TOOL (now in a collapsible expander) ---
+with st.expander("🔍 Show Debugging Information"):
+    st.markdown(
+        """
+        **If your translations are wrong, this is the most likely cause.
+        Verify that your Max Lengths are correct and that your tokenizers have
+        the words in their vocabulary.
+        """
+    )
+    # Display Max Lengths
+    st.subheader("Max Lengths Used")
+    st.text(f"max_len_eng_fr: {max_len_eng_fr}")
+    st.text(f"max_len_fr: {max_len_fr}")
+    st.text(f"max_len_eng_hi: {max_len_eng_hi}")
+    st.text(f"max_len_hi: {max_len_hi}")
+
+    # Display Vocabulary Sizes
+    st.subheader("Tokenizer Vocabulary Sizes")
+    st.text(f"English (for French) vocab size: {len(eng_tokenizer_fr.word_index)}")
+    st.text(f"French vocab size: {len(fr_tokenizer.word_index)}")
+    st.text(f"English (for Hindi) vocab size: {len(eng_tokenizer_hi.word_index)}")
+    st.text(f"Hindi vocab size: {len(hi_tokenizer.word_index)}")
+
+    # Process a Test Sentence
+    test_sentence = "Hello, how are you?"
+    st.subheader(f"Test Sentence: '{test_sentence}'")
+
+    # Test French Model Tokenizer
+    st.markdown("##### English (for French) Tokenizer Test")
+    eng_seq_fr_test = eng_tokenizer_fr.texts_to_sequences([test_sentence.lower()])
+    st.text(f"Original sequence: {eng_seq_fr_test}")
+    padded_seq = pad_sequences(eng_seq_fr_test, maxlen=max_len_eng_fr, padding='post')
+    st.text(f"Padded/Truncated sequence: {padded_seq}")
+
+    # Test Hindi Model Tokenizer
+    st.markdown("##### English (for Hindi) Tokenizer Test")
+    eng_seq_hi_test = eng_tokenizer_hi.texts_to_sequences([test_sentence.lower()])
+    st.text(f"Original sequence: {eng_seq_hi_test}")
+    padded_seq_hi = pad_sequences(eng_seq_hi_test, maxlen=max_len_eng_hi, padding='post')
+    st.text(f"Padded/Truncated sequence: {padded_seq_hi}")

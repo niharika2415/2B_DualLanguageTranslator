@@ -25,52 +25,6 @@ max_len_fr = 10
 max_len_eng_hi = 22
 max_len_hi = 25
 
-# --- DEBUGGING TOOL (OPTIONAL) ---
-# Paste this code block anywhere in your app.py, outside of any functions.
-# This will help you inspect your tokenizers and max lengths.
-
-st.header("🔍 Debugging Information")
-
-st.markdown(
-    """
-    **If your translations are wrong, this is the most likely cause.
-    Verify that your Max Lengths are correct and that your tokenizers have
-    the words in their vocabulary.
-    """
-)
-
-# Display Max Lengths
-st.subheader("Max Lengths Used")
-st.text(f"max_len_eng_fr: {max_len_eng_fr}")
-st.text(f"max_len_fr: {max_len_fr}")
-st.text(f"max_len_eng_hi: {max_len_eng_hi}")
-st.text(f"max_len_hi: {max_len_hi}")
-
-# Display Vocabulary Sizes
-st.subheader("Tokenizer Vocabulary Sizes")
-st.text(f"English (for French) vocab size: {eng_tokenizer_fr.word_index['the']}")
-st.text(f"French vocab size: {len(fr_tokenizer.word_index)}")
-st.text(f"English (for Hindi) vocab size: {len(eng_tokenizer_hi.word_index)}")
-st.text(f"Hindi vocab size: {len(hi_tokenizer.word_index)}")
-
-# Process a Test Sentence
-test_sentence = "Hello, how are you?"
-st.subheader(f"Test Sentence: '{test_sentence}'")
-
-# Test French Model Tokenizer
-st.markdown("##### English (for French) Tokenizer Test")
-eng_seq_fr_test = eng_tokenizer_fr.texts_to_sequences([test_sentence.lower()])
-st.text(f"Original sequence: {eng_seq_fr_test}")
-padded_seq = pad_sequences(eng_seq_fr_test, maxlen=max_len_eng_fr, padding='post')
-st.text(f"Padded/Truncated sequence: {padded_seq}")
-
-# Test Hindi Model Tokenizer
-st.markdown("##### English (for Hindi) Tokenizer Test")
-eng_seq_hi_test = eng_tokenizer_hi.texts_to_sequences([test_sentence.lower()])
-st.text(f"Original sequence: {eng_seq_hi_test}")
-padded_seq_hi = pad_sequences(eng_seq_hi_test, maxlen=max_len_eng_hi, padding='post')
-st.text(f"Padded/Truncated sequence: {padded_seq_hi}")
-
 # --- Model and Tokenizer Loading (cached for efficiency) ---
 # Using st.cache_resource ensures that these heavy files are only loaded once.
 @st.cache_resource
@@ -138,9 +92,55 @@ def load_translation_resources():
         st.stop()
 
     return model_fr, model_hi, eng_tokenizer_fr, fr_tokenizer, eng_tokenizer_hi, hi_tokenizer
-
+    
 # Load all resources
 model_fr, model_hi, eng_tokenizer_fr, fr_tokenizer, eng_tokenizer_hi, hi_tokenizer = load_translation_resources()
+
+# --- DEBUGGING TOOL (OPTIONAL) ---
+# Paste this code block anywhere in your app.py, outside of any functions.
+# This will help you inspect your tokenizers and max lengths.
+
+st.header("🔍 Debugging Information")
+
+st.markdown(
+    """
+    **If your translations are wrong, this is the most likely cause.
+    Verify that your Max Lengths are correct and that your tokenizers have
+    the words in their vocabulary.
+    """
+)
+
+# Display Max Lengths
+st.subheader("Max Lengths Used")
+st.text(f"max_len_eng_fr: {max_len_eng_fr}")
+st.text(f"max_len_fr: {max_len_fr}")
+st.text(f"max_len_eng_hi: {max_len_eng_hi}")
+st.text(f"max_len_hi: {max_len_hi}")
+
+# Display Vocabulary Sizes
+st.subheader("Tokenizer Vocabulary Sizes")
+st.text(f"English (for French) vocab size: {eng_tokenizer_fr.word_index['the']}")
+st.text(f"French vocab size: {len(fr_tokenizer.word_index)}")
+st.text(f"English (for Hindi) vocab size: {len(eng_tokenizer_hi.word_index)}")
+st.text(f"Hindi vocab size: {len(hi_tokenizer.word_index)}")
+
+# Process a Test Sentence
+test_sentence = "Hello, how are you?"
+st.subheader(f"Test Sentence: '{test_sentence}'")
+
+# Test French Model Tokenizer
+st.markdown("##### English (for French) Tokenizer Test")
+eng_seq_fr_test = eng_tokenizer_fr.texts_to_sequences([test_sentence.lower()])
+st.text(f"Original sequence: {eng_seq_fr_test}")
+padded_seq = pad_sequences(eng_seq_fr_test, maxlen=max_len_eng_fr, padding='post')
+st.text(f"Padded/Truncated sequence: {padded_seq}")
+
+# Test Hindi Model Tokenizer
+st.markdown("##### English (for Hindi) Tokenizer Test")
+eng_seq_hi_test = eng_tokenizer_hi.texts_to_sequences([test_sentence.lower()])
+st.text(f"Original sequence: {eng_seq_hi_test}")
+padded_seq_hi = pad_sequences(eng_seq_hi_test, maxlen=max_len_eng_hi, padding='post')
+st.text(f"Padded/Truncated sequence: {padded_seq_hi}")
 
 # --- Translation function (corrected) ---
 # max_output_len parameter removed as it's not used in the function logic

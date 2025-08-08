@@ -8,6 +8,11 @@ import gdown
 import pickle
 import os
 
+st.set_page_config(page_title="Dual Translator", layout="centered")
+st.title("🔁 English ➡️ French & Hindi Translator")
+st.markdown("Enter an English sentence (10+ letters). You'll get translations in both languages.")
+
+user_input = st.text_input("📥 Your English sentence:")
 if user_input:
     if len(user_input) < 10:
         st.warning("Upload again")
@@ -80,11 +85,6 @@ def translate_sentence(model, input_text, tokenizer_in, tokenizer_out, max_input
     return ' '.join(result)
 
 # Streamlit UI
-st.set_page_config(page_title="Dual Translator", layout="centered")
-st.title("🔁 English ➡️ French & Hindi Translator")
-st.markdown("Enter an English sentence (10+ letters). You'll get translations in both languages.")
-
-user_input = st.text_input("📥 Your English sentence:")
 
 if st.button("Translate"):
     if len(user_input.strip()) < 10:
@@ -113,6 +113,7 @@ if st.button("Translate"):
         st.success("✅ Translations")
         st.markdown(f"**🇫🇷 French:** {fr_translation}")
         st.markdown(f"**🇮🇳 Hindi:** {hi_translation}")
+
 
 
 

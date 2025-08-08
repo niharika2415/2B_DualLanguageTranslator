@@ -8,9 +8,6 @@ import gdown
 import pickle
 import os
 
-#Input
-user_input= st.text_input("Enter An English Sentence:")
-
 if user_input:
     if len(user_input) < 10:
         st.warning("Upload again")
@@ -116,6 +113,7 @@ if st.button("Translate"):
         st.success("✅ Translations")
         st.markdown(f"**🇫🇷 French:** {fr_translation}")
         st.markdown(f"**🇮🇳 Hindi:** {hi_translation}")
+
 
 
 

@@ -15,13 +15,12 @@ st.title("🔁 English ➡️ French & Hindi Translator")
 st.markdown("Enter an English sentence (10+ letters). You'll get translations in both languages.")
 user_input = st.text_input("📥 Your English sentence:")
 
-# --- Define Max Sequence Lengths (IMPORTANT: Replace with your actual values!) ---
-max_len_eng = 50  # Example: Adjust based on your English tokenizer/model's max sequence length
-max_len_fr = 60   # Example: Adjust based on your French tokenizer/model's max sequence length
-max_len_hi = 60   # Example: Adjust based on your Hindi tokenizer/model's max sequence length
+max_len_eng_fr = 4
+max_len_fr = 10
+max_len_eng_hi = 22
+max_len_hi = 25
 
-# --- Model and Tokenizer Loading (with gdown 'id' method and error handling) ---
-
+# --- Model and Tokenizer Loading (cached for efficiency) ---
 @st.cache_resource # Cache resource to prevent reloading on every rerun
 def load_translation_resources():
     # French model
@@ -38,9 +37,9 @@ def load_translation_resources():
         gdown.download(f"https://drive.google.com/uc?id={hi_model_id}", hi_model_path, quiet=False)
     model_hi = tf.keras.models.load_model(hi_model_path)
 
-    # 1. English tokenizer for French model
+    # 1. English tokenizer for French model (using ID)
     eng_tokenizer_fr_path = "eng_tokenizer_fr.pkl"
-    eng_tokenizer_fr_id = "1mEzR2ePmY0zbzHHPlMwNe9WofMK-vKUY" # Corrected to use ID
+    eng_tokenizer_fr_id = "1mEzR2ePmY0zbzHHPlMwNe9WofMK-vKUY"
     if not os.path.exists(eng_tokenizer_fr_path):
         gdown.download(id=eng_tokenizer_fr_id, output=eng_tokenizer_fr_path, quiet=False)
     try:
@@ -48,10 +47,9 @@ def load_translation_resources():
             eng_tokenizer_fr = pickle.load(f)
     except pickle.UnpicklingError as e:
         st.error(f"Error loading {eng_tokenizer_fr_path}: {e}")
-        st.error("Please ensure the file is a valid pickle file and was downloaded correctly.")
-        st.stop() # Stop the app if critical component fails to load
+        st.stop()
 
-    # 2. French tokenizer
+    # 2. French tokenizer (using ID)
     fr_tokenizer_id = "1t2SERaR-ugYvf49eGbQKwdW0qDKRR7aF"
     fr_tokenizer_path = "fr_tokenizer.pkl"
     if not os.path.exists(fr_tokenizer_path):
@@ -61,12 +59,11 @@ def load_translation_resources():
             fr_tokenizer = pickle.load(f)
     except pickle.UnpicklingError as e:
         st.error(f"Error loading {fr_tokenizer_path}: {e}")
-        st.error("Please ensure the file is a valid pickle file and was downloaded correctly.")
         st.stop()
 
-    # 3. English tokenizer for Hindi model
+    # 3. English tokenizer for Hindi model (using ID)
     eng_tokenizer_hi_path = "eng_tokenizer_hi.pkl"
-    eng_tokenizer_hi_id = "1WxdefG3TY9uJkpt5yfqxwqQ-U9czudlr" # Corrected to use ID
+    eng_tokenizer_hi_id = "1WxdefG3TY9uJkpt5yfqxwqQ-U9czudlr"
     if not os.path.exists(eng_tokenizer_hi_path):
         gdown.download(id=eng_tokenizer_hi_id, output=eng_tokenizer_hi_path, quiet=False)
     try:
@@ -74,12 +71,11 @@ def load_translation_resources():
             eng_tokenizer_hi = pickle.load(f)
     except pickle.UnpicklingError as e:
         st.error(f"Error loading {eng_tokenizer_hi_path}: {e}")
-        st.error("Please ensure the file is a valid pickle file and was downloaded correctly.")
         st.stop()
 
-    # 4. Hindi tokenizer
+    # 4. Hindi tokenizer (using ID)
     hi_tokenizer_path = "hi_tokenizer.pkl"
-    hi_tokenizer_id = "1vAbYqb1X2PxXHZwCT2d_8PKG-P8TDONm" # Corrected to use ID
+    hi_tokenizer_id = "1vAbYqb1X2PxXHZwCT2d_8PKG-P8TDONm"
     if not os.path.exists(hi_tokenizer_path):
         gdown.download(id=hi_tokenizer_id, output=hi_tokenizer_path, quiet=False)
     try:
@@ -87,16 +83,15 @@ def load_translation_resources():
             hi_tokenizer = pickle.load(f)
     except pickle.UnpicklingError as e:
         st.error(f"Error loading {hi_tokenizer_path}: {e}")
-        st.error("Please ensure the file is a valid pickle file and was downloaded correctly.")
         st.stop()
 
     return model_fr, model_hi, eng_tokenizer_fr, fr_tokenizer, eng_tokenizer_hi, hi_tokenizer
 
-# Load all resources (models and tokenizers) using the cached function
+# Load all resources
 model_fr, model_hi, eng_tokenizer_fr, fr_tokenizer, eng_tokenizer_hi, hi_tokenizer = load_translation_resources()
 
 # --- Translation function ---
-def translate_sentence(model, input_text, tokenizer_in, tokenizer_out, max_input_len, max_output_len):
+def translate_sentence(model, input_text, tokenizer_in, tokenizer_out, max_input_len):
     seq = tokenizer_in.texts_to_sequences([input_text])
     padded = pad_sequences(seq, maxlen=max_input_len, padding='post')
     pred = model.predict(padded)
@@ -107,10 +102,10 @@ def translate_sentence(model, input_text, tokenizer_in, tokenizer_out, max_input
     reverse_word_index = {index: word for word, index in tokenizer_out.word_index.items()}
 
     for idx in pred_seq[0]:
-        if idx == 0: # Assuming 0 is padding, adjust if your tokenizer uses a different padding index
+        if idx == 0:
             continue
         word = reverse_word_index.get(idx)
-        if word: # Check if word exists (handles OOV or unknown tokens)
+        if word:
             result.append(word)
     return ' '.join(result)
 
@@ -119,26 +114,23 @@ if st.button("Translate"):
     if len(user_input.strip()) < 10:
         st.warning("⚠️ Enter at least 10 letters.")
     else:
-        # French Translation
+        # French Translation (using the correct max length for this model)
         fr_translation = translate_sentence(
             model_fr,
             user_input.lower(),
             eng_tokenizer_fr,
             fr_tokenizer,
-            max_input_len=max_len_eng,
-            max_output_len=max_len_fr # max_output_len is not used in translate_sentence, can remove from signature if not needed
+            max_input_len=max_len_eng_fr,
         )
         st.markdown(f"**🇫🇷 French:** {fr_translation}")
 
-        # Hindi Translation
+        # Hindi Translation (using the correct max length for this model)
         hi_translation = translate_sentence(
             model_hi,
             user_input.lower(),
             eng_tokenizer_hi,
             hi_tokenizer,
-            max_input_len=max_len_eng,
-            max_output_len=max_len_hi # max_output_len is not used
+            max_input_len=max_len_eng_hi,
         )
         st.markdown(f"**🇮🇳 Hindi:** {hi_translation}")
-
-        st.success("✅ Translations Complete!") # Moved success message to the end
+        st.success("✅ Translations Complete!")

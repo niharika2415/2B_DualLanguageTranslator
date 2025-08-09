@@ -16,8 +16,8 @@ st.markdown("Enter an English sentence (10+ letters). You'll get translations in
 user_input = st.text_input("📥 Your English sentence:")
 
 # --- Define Max Sequence Lengths (IMPORTANT: YOU MUST REPLACE THESE VALUES!) ---
-max_len_eng_fr = 4
-max_len_fr = 10
+max_len_eng_fr = 55
+max_len_fr = 55
 max_len_eng_hi = 22
 max_len_hi = 25
 
@@ -176,3 +176,4 @@ with st.expander("🔍 Show Debugging Information"):
     st.text(f"Original sequence: {eng_seq_hi_test}")
     padded_seq_hi = pad_sequences(eng_seq_hi_test, maxlen=max_len_eng_hi, padding='post')
     st.text(f"Padded/Truncated sequence: {padded_seq_hi}")
+

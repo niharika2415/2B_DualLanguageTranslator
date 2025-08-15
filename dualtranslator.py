@@ -8,6 +8,13 @@ import io
 
 # --- Helper Functions ---
 
+def get_gdrive_download_url(file_id):
+    """
+    Converts a Google Drive file ID into a direct download URL.
+    This bypasses the web page and gets the raw file.
+    """
+    return f'https://drive.google.com/uc?export=download&id={file_id}'
+
 @st.cache_resource
 def load_models():
     """
@@ -16,10 +23,14 @@ def load_models():
     """
     st.info("Loading fine-tuned translation models. This may take a moment...")
 
-    # The Google Drive URLs for fine-tuned model folders (zipped).
-
-    drive_url_fr = "https://drive.google.com/file/d/1dWe1J36dzdBAho4x_LRPfVFiuumyOi3n/view?usp=sharing"
-    drive_url_hi = "https://drive.google.com/file/d/1Tey7cHou8q0D_40Q5fk6tpqeROO3ZR3h/view?usp=sharing"
+    # You must get the 'file_id' from your Google Drive sharing link.
+    # A sharing link looks like: https://drive.google.com/file/d/<FILE_ID>/view
+    # The 'FILE_ID' is a long string of letters and numbers.
+    file_id_fr = "1dWe1J36dzdBAho4x_LRPfVFiuumyOi3n"
+    file_id_hi = "1Tey7cHou8q0D_40Q5fk6tpqeROO3ZR3h"
+    
+    drive_url_fr = get_gdrive_download_url(file_id_fr)
+    drive_url_hi = get_gdrive_download_url(file_id_hi)
     
     # Check if the model folders already exist to avoid re-downloading
     if not os.path.exists("./fine-tuned-en-fr-model"):

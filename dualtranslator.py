@@ -3,7 +3,7 @@ from transformers import MarianMTModel, MarianTokenizer
 
 # Load models
 EN_FR_MODEL = "niharikabhardwaj/en-fr-model"
-FR_EN_MODEL = "niharikabhardwaj/en-hi-model"
+HI_EN_MODEL = "niharikabhardwaj/en-hi-model"
 
 @st.cache_resource
 def load_model(model_name):
@@ -48,3 +48,4 @@ if st.button("Translate"):
                 st.success(output)
     else:
         st.warning("Please enter some text to translate!")    
+

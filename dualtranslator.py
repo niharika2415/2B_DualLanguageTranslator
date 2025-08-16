@@ -12,7 +12,7 @@ def load_model(model_name):
     return tokenizer, model
 
 en_fr_tokenizer, en_fr_model = load_model(EN_FR_MODEL)
-en_hi_tokenizer, hi_en_model = load_model(EN_HI_MODEL)
+en_hi_tokenizer, en_hi_model = load_model(EN_HI_MODEL)
 
 # Streamlit UI
 st.set_page_config(page_title="Dual Language Translator", page_icon="🌍")
@@ -41,3 +41,4 @@ if st.button("Translate"):
             st.warning("Please enter at least 10 words or 10 letters to translate!")
     else:
         st.warning("Please enter some text to translate!")
+

@@ -22,16 +22,29 @@ direction = st.radio("Select translation direction:", ["English → French", "Fr
 text = st.text_area("Enter text:")
 
 if st.button("Translate"):
-    if text.strip():
-        if direction == "English → French":
-            inputs = en_fr_tokenizer(text, return_tensors="pt", padding=True)
-            translated = en_fr_model.generate(**inputs)
-            output = en_fr_tokenizer.decode(translated[0], skip_special_tokens=True)
-            st.success(output)
+    if len(text) > 10:
+        if text.strip():
+            if direction == "English → French":
+                inputs = en_fr_tokenizer(text, return_tensors="pt", padding=True)
+                translated = en_fr_model.generate(**inputs)
+                output = en_fr_tokenizer.decode(translated[0], skip_special_tokens=True)
+                st.success(output)
+            else:
+                inputs = fr_en_tokenizer(text, return_tensors="pt", padding=True)
+                translated = fr_en_model.generate(**inputs)
+                output = fr_en_tokenizer.decode(translated[0], skip_special_tokens=True)
+                st.success(output)
         else:
-            inputs = fr_en_tokenizer(text, return_tensors="pt", padding=True)
-            translated = fr_en_model.generate(**inputs)
-            output = fr_en_tokenizer.decode(translated[0], skip_special_tokens=True)
-            st.success(output)
+            st.warning("Please enter some text to translate!")
+            if direction == "English → Hindi":
+                inputs = en_hi_tokenizer(text, return_tensors="pt", padding=True)
+                translated = en_hi_model.generate(**inputs)
+                output = en_hi_tokenizer.decode(translated[0], skip_special_tokens=True)
+                st.success(output)
+            else:
+                inputs = hi_en_tokenizer(text, return_tensors="pt", padding=True)
+                translated = hi_en_model.generate(**inputs)
+                output = hi_en_tokenizer.decode(translated[0], skip_special_tokens=True)
+                st.success(output)
     else:
-        st.warning("Please enter some text to translate!")
+        st.warning("Please enter some text to translate!")    

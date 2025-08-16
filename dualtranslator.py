@@ -1,146 +1,37 @@
 import streamlit as st
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-import torch
-import os
-import requests
-import zipfile
-import io
+from transformers import MarianMTModel, MarianTokenizer
 
-# --- Helper Functions ---
-
-def get_gdrive_download_url(file_id):
-    """
-    Converts a Google Drive file ID into a direct download URL.
-    This bypasses the web page and gets the raw file.
-    """
-    return f'https://drive.google.com/uc?export=download&id={file_id}'
+# Load models
+EN_FR_MODEL = "niharikabhardwaj/en-fr-model"
+FR_EN_MODEL = "niharikabhardwaj/en-hi-model"
 
 @st.cache_resource
-def load_models():
-    """
-    Loads fine-tuned translation models from a public Google Drive URL.
-    This function caches the models to avoid downloading them on each interaction.
-    """
-    st.info("Loading fine-tuned translation models. This may take a moment...")
+def load_model(model_name):
+    tokenizer = MarianTokenizer.from_pretrained(model_name)
+    model = MarianMTModel.from_pretrained(model_name)
+    return tokenizer, model
 
-    # You must get the 'file_id' from your Google Drive sharing link.
-    # A sharing link looks like: https://drive.google.com/file/d/<FILE_ID>/view
-    # The 'FILE_ID' is a long string of letters and numbers.
-    file_id_fr = "1dWe1J36dzdBAho4x_LRPfVFiuumyOi3n"
-    file_id_hi = "1Tey7cHou8q0D_40Q5fk6tpqeROO3ZR3h"
-    
-    drive_url_fr = get_gdrive_download_url(file_id_fr)
-    drive_url_hi = get_gdrive_download_url(file_id_hi)
-    
-    # Check if the model folders already exist to avoid re-downloading
-    if not os.path.exists("./fine-tuned-en-fr-model"):
-        st.info("Downloading French model from Google Drive...")
-        try:
-            response = requests.get(drive_url_fr)
-            response.raise_for_status()
-            with zipfile.ZipFile(io.BytesIO(response.content)) as zip_ref:
-                zip_ref.extractall("./fine-tuned-en-fr-model")
-            st.success("French model downloaded successfully!")
-        except Exception as e:
-            st.error(f"Error downloading French model from Drive: {e}")
-            return None
+en_fr_tokenizer, en_fr_model = load_model(EN_FR_MODEL)
+fr_en_tokenizer, fr_en_model = load_model(FR_EN_MODEL)
 
-    if not os.path.exists("./fine-tuned-en-hi-model"):
-        st.info("Downloading Hindi model from Google Drive...")
-        try:
-            response = requests.get(drive_url_hi)
-            response.raise_for_status()
-            with zipfile.ZipFile(io.BytesIO(response.content)) as zip_ref:
-                zip_ref.extractall("./fine-tuned-en-hi-model")
-            st.success("Hindi model downloaded successfully!")
-        except Exception as e:
-            st.error(f"Error downloading Hindi model from Drive: {e}")
-            return None
+# Streamlit UI
+st.set_page_config(page_title="Dual Language Translator", page_icon="🌍")
+st.title("🌍 English ↔ French Translator")
 
-    # Load the models from the local directories after downloading
-    try:
-        tokenizer_en_fr = AutoTokenizer.from_pretrained("./fine-tuned-en-fr-model")
-        model_en_fr = AutoModelForSeq2SeqLM.from_pretrained("./fine-tuned-en-fr-model")
+direction = st.radio("Select translation direction:", ["English → French", "French → English"])
+text = st.text_area("Enter text:")
 
-        tokenizer_en_hi = AutoTokenizer.from_pretrained("./fine-tuned-en-hi-model")
-        model_en_hi = AutoModelForSeq2SeqLM.from_pretrained("./fine-tuned-en-hi-model")
-
-        st.success("Models loaded successfully!")
-        return {
-            "fr_tokenizer": tokenizer_en_fr,
-            "fr_model": model_en_fr,
-            "hi_tokenizer": tokenizer_en_hi,
-            "hi_model": model_en_hi
-        }
-    except Exception as e:
-        st.error(f"Error loading models from local disk: {e}")
-        return None
-
-def translate_text(text, tokenizer, model):
-    """
-    Translates a single piece of text using the given tokenizer and model.
-    """
-    if not text:
-        return ""
-    # Tokenize the input text
-    input_ids = tokenizer.encode(text, return_tensors="pt")
-    
-    # Generate the translation
-    outputs = model.generate(input_ids)
-    
-    # Decode the output and return the translated text
-    translated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    return translated_text
-
-# --- Main Streamlit Application ---
-
-def main():
-    st.set_page_config(page_title="Dual Language Translator", page_icon="🌐")
-    st.title("🌐 English to French & Hindi Translator")
-    st.markdown(
-        """
-        <style>
-        .stButton>button {
-            background-color: #007BFF;
-            color: white;
-            border-radius: 12px;
-            padding: 10px 24px;
-            font-size: 16px;
-        }
-        .stTextInput>div>div>input {
-            border-radius: 12px;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-
-    st.markdown("Enter an English word or line with **10 or more letters** to see its translation.")
-
-    # Load models into cache
-    models = load_models()
-    if models is None:
-        st.stop()
-
-    # Get user input
-    user_input = st.text_input("Enter English text here:")
-
-    if st.button("Translate"):
-        if len(user_input) < 10:
-            st.warning("Please upload again. The English word/line must have 10 or more letters.")
+if st.button("Translate"):
+    if text.strip():
+        if direction == "English → French":
+            inputs = en_fr_tokenizer(text, return_tensors="pt", padding=True)
+            translated = en_fr_model.generate(**inputs)
+            output = en_fr_tokenizer.decode(translated[0], skip_special_tokens=True)
+            st.success(output)
         else:
-            with st.spinner("Translating..."):
-                # Translate to French
-                fr_output = translate_text(user_input, models["fr_tokenizer"], models["fr_model"])
-                
-                # Translate to Hindi
-                hi_output = translate_text(user_input, models["hi_tokenizer"], models["hi_model"])
-
-                st.subheader("French Translation:")
-                st.write(fr_output)
-
-                st.subheader("Hindi Translation:")
-                st.write(hi_output)
-
-if __name__ == "__main__":
-    main()
+            inputs = fr_en_tokenizer(text, return_tensors="pt", padding=True)
+            translated = fr_en_model.generate(**inputs)
+            output = fr_en_tokenizer.decode(translated[0], skip_special_tokens=True)
+            st.success(output)
+    else:
+        st.warning("Please enter some text to translate!")

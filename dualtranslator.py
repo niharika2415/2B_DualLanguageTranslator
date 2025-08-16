@@ -16,7 +16,7 @@ en_hi_tokenizer, en_hi_model = load_model(EN_HI_MODEL)
 
 # Streamlit UI
 st.set_page_config(page_title="Dual Language Translator", page_icon="🌍")
-st.title("🌍 English ↔ Frech/Hindi Translator")
+st.title("🌍 English ↔ French/Hindi Translator")
 
 direction = st.radio("Select translation direction:", ["English → French", "English → Hindi"])
 text = st.text_area("Enter text:")
@@ -41,4 +41,5 @@ if st.button("Translate"):
             st.warning("Please enter at least 10 words or 10 letters to translate!")
     else:
         st.warning("Please enter some text to translate!")
+
 
